@@ -7,6 +7,17 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
+from sqlalchemy import (
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
+from sqlalchemy.sql import func
+
 
 class Image(Base):
     __tablename__ = "images"
@@ -70,4 +81,37 @@ class ImageMetadata(Base):
     image: Mapped[Image] = relationship(
         "Image",
         back_populates="metadata_record",
+    )
+
+class AICallLog(Base):
+    __tablename__ = "ai_call_logs"
+
+    id = Column(Integer, primary_key=True)
+
+    image_id = Column(
+        Integer,
+        ForeignKey("images.id"),
+        nullable=False,
+    )
+
+    provider = Column(String(50), nullable=False)
+    model_name = Column(String(100), nullable=False)
+
+    status = Column(String(30), nullable=False)
+
+    input_tokens = Column(Integer, nullable=True)
+    output_tokens = Column(Integer, nullable=True)
+
+    estimated_cost_usd = Column(
+        Float,
+        nullable=False,
+        default=0.0,
+    )
+
+    error_message = Column(Text, nullable=True)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
     )

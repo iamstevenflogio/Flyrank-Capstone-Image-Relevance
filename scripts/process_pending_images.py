@@ -6,7 +6,11 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-from app.models.image import ImageMetadata as ImageMetadataModel
+from app.models.image import (
+    AICallLog,
+    Image,
+    ImageMetadata as ImageMetadataModel,
+)
 from app.schemas.image_metadata import ImageMetadata as ImageMetadataSchema
 
 import argparse
@@ -14,7 +18,6 @@ import argparse
 from sqlalchemy import select
 
 from app.database import SessionLocal
-from app.models.image import Image
 
 DEFAULT_BATCH_SIZE = 3
 MODEL_NAME = "gemini-3.8-flash"
@@ -47,6 +50,12 @@ def get_pending_images(batch_size: int) -> list[Image]:
                 .limit(batch_size)
             )
         )
+
+def get_usage_value(usage_metadata, field_name):
+    if usage_metadata is None:
+        return None
+
+    return getattr(usage_metadata, field_name, None)
 
 def main():
     parser = argparse.ArgumentParser(
@@ -126,6 +135,27 @@ def main():
                     ),
                 )
 
+                usage = getattr(response, "usage_metadata", None)
+
+                session.add(
+                    AICallLog(
+                        image_id=image.id,
+                        provider="gemini",
+                        model_name=MODEL_NAME,
+                        status="success",
+                        input_tokens=get_usage_value(
+                            usage,
+                            "prompt_token_count",
+                        ),
+                        output_tokens=get_usage_value(
+                            usage,
+                            "candidates_token_count",
+                        ),
+                        estimated_cost_usd=0.0,
+                        error_message=None,
+                    )
+                )
+
                 metadata = response.parsed
 
                 if not isinstance(metadata, ImageMetadataSchema):
@@ -185,10 +215,27 @@ def main():
                 print(f"Exception repr: {error!r}")
 
                 image = session.get(Image, selected_image.id)
+
+                session.add(
+                    AICallLog(
+                        image_id=image.id,
+                        provider="gemini",
+                        model_name=MODEL_NAME,
+                        status="failed",
+                        input_tokens=None,
+                        output_tokens=None,
+                        estimated_cost_usd=0.0,
+                        error_message=(
+                            f"{type(error).__name__}: {error!r}"
+                        )[:1000],
+                    )
+                )
+
                 image.status = "failed"
                 image.error_message = (
                     f"{type(error).__name__}: {error!r}"
                 )[:1000]
+
                 session.commit()
 
 def generate_with_retry(client, model, contents, config, max_retries=5):
