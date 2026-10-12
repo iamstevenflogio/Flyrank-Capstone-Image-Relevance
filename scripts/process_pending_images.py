@@ -1,4 +1,6 @@
 import os 
+import random
+import time
 from pathlib import Path
 from dotenv import load_dotenv
 from google import genai
@@ -16,6 +18,7 @@ from app.models.image import Image
 
 DEFAULT_BATCH_SIZE = 3
 MODEL_NAME = "gemini-3.8-flash"
+LOW_CONFIDENCE_THRESHOLD = 0.70
 
 PROMPT = """
 Analyze this image for an article-to-image matching engine.
@@ -104,7 +107,8 @@ def main():
                 continue
 
             try: 
-                response = client.models.generate_content(
+                response = generate_with_retry(
+                    client=client,
                     model=MODEL_NAME,
                     contents=[
                         types.Part.from_bytes(
@@ -116,8 +120,7 @@ def main():
                     config=types.GenerateContentConfig(
                         response_mime_type="application/json",
                         response_schema=ImageMetadataSchema,
-
-automatic_function_calling=types.AutomaticFunctionCallingConfig(
+                        automatic_function_calling=types.AutomaticFunctionCallingConfig(
                             disable=True,
                         ),
                     ),
@@ -128,24 +131,51 @@ automatic_function_calling=types.AutomaticFunctionCallingConfig(
                 if not isinstance(metadata, ImageMetadataSchema):
                     metadata = ImageMetadataSchema.model_validate(metadata)
 
-                session.add(
-                    ImageMetadataModel(
-                        image_id=image.id,
-                        subject=metadata.subject,
-                        category=metadata.category,
-                        attributes=metadata.attributes,
-                        caption=metadata.caption,
-                        confidence=metadata.confidence,
-                        model_name=MODEL_NAME,
-                        raw_response=metadata.model_dump(),
+                existing_metadata = (
+                session.query(ImageMetadataModel)
+                .filter(ImageMetadataModel.image_id == image.id)
+                .one_or_none()
+            )
+
+                if existing_metadata:
+                    existing_metadata.subject = metadata.subject
+                    existing_metadata.category = metadata.category
+                    existing_metadata.attributes = metadata.attributes
+                    existing_metadata.caption = metadata.caption
+                    existing_metadata.confidence = metadata.confidence
+                    existing_metadata.model_name = MODEL_NAME
+                    existing_metadata.raw_response = metadata.model_dump()
+                else:
+                    session.add(
+                        ImageMetadataModel(
+                            image_id=image.id,
+                            subject=metadata.subject,
+                            category=metadata.category,
+                            attributes=metadata.attributes,
+                            caption=metadata.caption,
+                            confidence=metadata.confidence,
+                            model_name=MODEL_NAME,
+                            raw_response=metadata.model_dump(),
+                        )
                     )
-                )
 
-                image.status = "completed"
                 image.error_message = None
-                session.commit()
 
-                print(f"Completed {image.id}: {image.filename}")
+                if metadata.confidence < LOW_CONFIDENCE_THRESHOLD:
+                    image.status = "needs_review"
+                    print(
+                    f"Needs review {image.id}: {image.filename} "
+                    f"(confidence={metadata.confidence})"
+                    )
+                else:
+                    image.status = "completed"
+                    session.commit()
+
+                    print(
+                        f"Completed {image.id}: {image.filename} "
+                        f"(confidence={metadata.confidence})"
+                    )
+    
 
             except Exception as error:
                 session.rollback()
@@ -160,6 +190,40 @@ automatic_function_calling=types.AutomaticFunctionCallingConfig(
                     f"{type(error).__name__}: {error!r}"
                 )[:1000]
                 session.commit()
+
+def generate_with_retry(client, model, contents, config, max_retries=5):
+    for retry_number in range(max_retries):
+        try:
+            return client.models.generate_content(
+                model=model,
+                contents=contents,
+                config=config,
+            )
+
+        except Exception as error:
+            error_text = str(error)
+
+            is_temporary_error = (
+                "503" in error_text
+                or "UNAVAILABLE" in error_text
+                or "429" in error_text
+                or "RESOURCE_EXHAUSTED" in error_text
+            )
+
+            is_last_attempt = retry_number == max_retries - 1
+
+            if not is_temporary_error or is_last_attempt:
+                raise
+
+            wait_seconds = (2 ** retry_number) + random.uniform(0, 1)
+
+            print(
+                f"Gemini temporarily unavailable. "
+                f"Retrying in {wait_seconds:.1f} seconds "
+                f"({retry_number + 1}/{max_retries})..."
+            )
+
+            time.sleep(wait_seconds)
 
         
 if __name__ == "__main__":
