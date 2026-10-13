@@ -52,6 +52,12 @@ class Image(Base):
         cascade="all, delete-orphan",
     )
 
+    metadata_record = relationship(
+    "ImageMetadata",
+    back_populates="image",
+    uselist=False,
+    )
+
 
 class ImageMetadata(Base):
     __tablename__ = "image_metadata"
@@ -81,6 +87,11 @@ class ImageMetadata(Base):
     image: Mapped[Image] = relationship(
         "Image",
         back_populates="metadata_record",
+    )
+
+    image = relationship(
+    "Image",
+    back_populates="metadata_record",
     )
 
 class AICallLog(Base):
