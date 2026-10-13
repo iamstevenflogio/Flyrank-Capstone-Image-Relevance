@@ -1,5 +1,7 @@
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session, joinedload
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.database import SessionLocal
 from app.models.image import Image, ImageMetadata, AICallLog
@@ -12,6 +14,13 @@ app = FastAPI(
     title="ImageMatch API",
     version="0.1.0",
 )
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+@app.get("/", include_in_schema=False)
+def read_frontend():
+    return FileResponse("static/index.html")
 
 def get_db():
     db = SessionLocal()

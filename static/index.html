@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ImageMatch Dashboard</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Arial, sans-serif;
+      background: #111827;
+      color: #f9fafb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+    }
+
+    header {
+      background: #172554;
+      border-bottom: 1px solid #334155;
+      padding: 28px max(24px, calc((100vw - 1100px) / 2));
+    }
+
+    main {
+      margin: 0 auto;
+      max-width: 1100px;
+      padding: 28px 24px 48px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin: 0 0 8px;
+    }
+
+    h2 {
+      font-size: 1rem;
+      margin: 0 0 12px;
+    }
+
+    p {
+      color: #cbd5e1;
+      margin: 0;
+    }
+
+    .filters {
+      align-items: end;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 24px 0;
+      padding: 18px;
+    }
+
+    label {
+      color: #cbd5e1;
+      display: grid;
+      font-size: 0.85rem;
+      gap: 7px;
+    }
+
+    select, button {
+      border-radius: 7px;
+      font: inherit;
+      padding: 9px 10px;
+    }
+
+    select {
+      background: #0f172a;
+      border: 1px solid #475569;
+      color: #f8fafc;
+      min-width: 155px;
+    }
+
+    button {
+      background: #2563eb;
+      border: 0;
+      color: white;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    #message {
+      color: #cbd5e1;
+      margin: 16px 0;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .card-body {
+      padding: 16px;
+    }
+
+    .filename {
+      font-weight: 700;
+      margin-bottom: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .badge {
+      border-radius: 999px;
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      padding: 5px 9px;
+      text-transform: uppercase;
+    }
+
+    .completed {
+      background: #14532d;
+      color: #bbf7d0;
+    }
+
+    .failed {
+      background: #7f1d1d;
+      color: #fecaca;
+    }
+
+    .pending, .processing {
+      background: #78350f;
+      color: #fde68a;
+    }
+
+    dl {
+      display: grid;
+      gap: 9px;
+      margin: 0;
+    }
+
+    dt {
+      color: #94a3b8;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    dd {
+      margin: 2px 0 0;
+      overflow-wrap: anywhere;
+    }
+
+    .calls {
+      border-top: 1px solid #334155;
+      margin-top: 16px;
+      padding-top: 14px;
+    }
+
+    .call {
+      background: #0f172a;
+      border-radius: 7px;
+      color: #cbd5e1;
+      font-size: 0.82rem;
+      margin-top: 8px;
+      padding: 9px;
+    }
+
+    .error {
+      color: #fca5a5;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>ImageMatch Dashboard</h1>
+    <p>Image metadata and Gemini processing audit history.</p>
+  </header>
+
+  <main>
+    <section class="filters">
+      <label>
+        Processing status
+        <select id="status-filter">
+          <option value="">All statuses</option>
+          <option value="completed">Completed</option>
+          <option value="processing">Processing</option>
+          <option value="pending">Pending</option>
+          <option value="failed">Failed</option>
+        </select>
+      </label>
+
+      <label>
+        Category
+        <select id="category-filter">
+          <option value="">All categories</option>
+        </select>
+      </label>
+
+      <button id="apply-filters">Apply filters</button>
+    </section>
+
+    <p id="message">Loading images...</p>
+    <section id="image-grid" class="grid"></section>
+  </main>
+
+  <script>
+    const grid = document.getElementById("image-grid");
+    const message = document.getElementById("message");
+    const statusFilter = document.getElementById("status-filter");
+    const categoryFilter = document.getElementById("category-filter");
+    const applyButton = document.getElementById("apply-filters");
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatDate(value) {
+      if (!value) return "—";
+      return new Date(value).toLocaleString();
+    }
+
+    function renderCalls(calls) {
+      if (!calls.length) {
+        return "<div class='call'>No Gemini calls logged for this image.</div>";
+      }
+
+      return calls.map((call) => `
+        <div class="call">
+          <strong>${escapeHtml(call.status)}</strong> ·
+          ${escapeHtml(call.model_name)}<br>
+          Input: ${call.input_tokens ?? "—"} tokens ·
+          Output: ${call.output_tokens ?? "—"} tokens ·
+          Cost: $${Number(call.estimated_cost_usd ?? 0).toFixed(6)}<br>
+          ${formatDate(call.created_at)}
+          ${call.error_message
+            ? `<div class="error">${escapeHtml(call.error_message)}</div>`
+            : ""}
+        </div>
+      `).join("");
+    }
+
+    async function getCalls(imageId) {
+      const response = await fetch(`/images/${imageId}/calls`);
+
+      if (!response.ok) {
+        return [];
+      }
+
+      return response.json();
+    }
+
+    async function renderImages() {
+      const params = new URLSearchParams();
+
+      if (statusFilter.value) params.set("status", statusFilter.value);
+      if (categoryFilter.value) params.set("category", categoryFilter.value);
+
+      message.textContent = "Loading images...";
+      grid.innerHTML = "";
+
+      try {
+        const response = await fetch(`/images?${params.toString()}`);
+
+        if (!response.ok) {
+          throw new Error("Could not load images.");
+        }
+
+        const images = await response.json();
+
+        if (!images.length) {
+          message.textContent = "No images match those filters.";
+          return;
+        }
+
+        message.textContent = `${images.length} image(s) found.`;
+
+        const callsByImage = await Promise.all(
+          images.map((image) => getCalls(image.id))
+        );
+
+        grid.innerHTML = images.map((image, index) => {
+          const metadata = image.metadata_record;
+          const status = image.processing_status || "unknown";
+
+          return `
+            <article class="card">
+              <div class="card-body">
+                <div class="filename">${escapeHtml(image.filename)}</div>
+                <span class="badge ${escapeHtml(status)}">
+                  ${escapeHtml(status)}
+                </span>
+
+                <dl>
+                  <div>
+                    <dt>Image ID</dt>
+                    <dd>${image.id}</dd>
+                  </div>
+                  <div>
+                    <dt>Category</dt>
+                    <dd>${escapeHtml(metadata?.category || "—")}</dd>
+                  </div>
+                  <div>
+                    <dt>Description</dt>
+                    <dd>${escapeHtml(metadata?.description || "—")}</dd>
+                  </div>
+                  <div>
+                    <dt>Created</dt>
+                    <dd>${formatDate(image.created_at)}</dd>
+                  </div>
+                </dl>
+
+                <div class="calls">
+                  <h2>Gemini audit history</h2>
+                  ${renderCalls(callsByImage[index])}
+                </div>
+              </div>
+            </article>
+          `;
+        }).join("");
+      } catch (error) {
+        message.textContent = error.message;
+      }
+    }
+
+    async function loadCategories() {
+      const response = await fetch("/images");
+
+      if (!response.ok) return;
+
+      const images = await response.json();
+      const categories = [
+        ...new Set(
+          images
+            .map((image) => image.metadata_record?.category)
+            .filter(Boolean)
+        ),
+      ].sort();
+
+      categoryFilter.innerHTML += categories
+        .map((category) =>
+          `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`
+        )
+        .join("");
+    }
+
+    applyButton.addEventListener("click", renderImages);
+
+    Promise.all([loadCategories(), renderImages()]);
+  </script>
+</body>
+</html>
