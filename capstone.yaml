@@ -1,0 +1,10 @@
+# Evaluator manifest for the ImageMatch capstone.
+run: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+base_url: "https://imagematch-api.onrender.com"
+
+endpoints:
+  dashboard: "GET /"
+  docs: "GET /docs"
+  images: "GET /images"
+  image: "GET /images/{image_id}"
+  image_calls: "GET /images/{image_id}/calls"
