@@ -3,9 +3,9 @@
 This file records implementation and verification evidence for ImageMatch. It is intended to make the project reviewable and reproducible.
 
 **Project:** ImageMatch API  
-**Repository:** Add GitHub repository URL here  
+**Repository:** `https://github.com/iamstevenflogio/Flyrank-Capstone-Image-Relevance`
 **Reviewer:** Steven  
-**Last updated:** 2026-10-13
+**Last updated:** 2026-10-22
 
 ## Evidence Rules
 
@@ -20,106 +20,68 @@ For each item:
 
 ## Environment
 
-| Item             | Value                        |
-| ---------------- | ---------------------------- |
-| Operating system | Windows                      |
-| Python version   | `TBD`                        |
-| FastAPI version  | `TBD`                        |
-| Database         | `TBD`                        |
-| AI provider      | Google Gemini                |
-| Gemini model     | `TBD: add exact model name`  |
-| Local API URL    | `http://127.0.0.1:8000`      |
-| Swagger URL      | `http://127.0.0.1:8000/docs` |
-| Dashboard URL    | `http://127.0.0.1:8000/`     |
+| Item             | Value                                  |
+| ---------------- | -------------------------------------- |
+| Operating system | `Windows`                              |
+| Python version   | `3.12.5`                               |
+| FastAPI version  | `0.141.1`                              |
+| Database         | `PostgreSQL`                           |
+| AI provider      | `Google Gemini`                        |
+| Gemini model     | `gemini-3.8-flash`                     |
+| Local API URL    | `http://127.0.0.1:8000`                |
+| Swagger URL      | `http://127.0.0.1:8000/docs`           |
+| Dashboard URL    | `http://127.0.0.1:8000/`               |
+| Deployed API URL | `https://imagematch-api.onrender.com/` |
 
 ## Implementation Checklist
 
-| Area                          | Evidence required                                       | Status           | Evidence / notes                       |
-| ----------------------------- | ------------------------------------------------------- | ---------------- | -------------------------------------- |
-| FastAPI application starts    | Uvicorn terminal shows startup completed                | PASS             | Verified locally on 2026-10-13         |
-| Swagger docs available        | `/docs` opens and lists endpoints                       | PASS             | Verified locally on 2026-10-13         |
-| Image listing endpoint        | `GET /images` returns JSON list                         | PASS             | Verified manually in Swagger           |
-| Status filter                 | `GET /images?status=completed` returns filtered data    | `NOT YET TESTED` | Add URL/result                         |
-| Category filter               | `GET /images?category=<category>` returns filtered data | `NOT YET TESTED` | Add URL/result                         |
-| Single-image endpoint         | `GET /images/{image_id}` returns image and metadata     | `NOT YET TESTED` | Add image ID and result                |
-| Missing image behavior        | Missing image ID returns `404`                          | `NOT YET TESTED` | Example: `/images/999999`              |
-| Audit endpoint exists         | `/images/{image_id}/calls` appears in Swagger           | PASS             | Verified locally on 2026-10-13         |
-| Audit endpoint works          | Existing image returns call list                        | `NOT YET TESTED` | Add image ID and response summary      |
-| Audit endpoint missing ID     | Missing image call request returns `404`                | `NOT YET TESTED` | Example: `/images/999999/calls`        |
-| AI success logging            | Successful Gemini call stored with status/tokens/cost   | `NOT YET TESTED` | Add screenshot or JSON                 |
-| AI failure logging            | Failed Gemini call stores error details                 | `NOT YET TESTED` | Add screenshot or JSON                 |
-| Frontend route                | `/` loads dashboard                                     | `NOT YET TESTED` | Add screenshot                         |
-| Frontend cards                | Dashboard lists images                                  | `NOT YET TESTED` | Add screenshot                         |
-| Dashboard status filter       | UI filter changes displayed images                      | `NOT YET TESTED` | Add screenshot/notes                   |
-| Dashboard category filter     | UI filter changes displayed images                      | `NOT YET TESTED` | Add screenshot/notes                   |
-| Automated tests               | `pytest -v` passes                                      | `NOT YET TESTED` | Add terminal output                    |
-| Secrets excluded              | `.env` is in `.gitignore` and not committed             | `NOT YET TESTED` | Verify with `git status` and GitHub    |
-| README complete               | Setup, architecture, API, and limitations documented    | PASS             | README drafted on 2026-10-13           |
-| Evaluation dataset documented | Dataset plan and labels template exist                  | PASS             | `evaluation_dataset/README.md` drafted |
-| Deployment                    | Public URL works                                        | `NOT YET TESTED` | Add URL when deployed                  |
-
-## Manual API Verification
-
-### Image list
-
-**Date:** `TBD`  
-**Request:**
-
-```text
-GET http://127.0.0.1:8000/images
-```
-
-**Expected:**
-
-- HTTP `200`
-- JSON array
-- Each image includes core fields and optional `metadata_record`
-
-**Observed:** `TBD`  
-**Status:** `NOT YET TESTED`  
-**Evidence link/screenshot:** `TBD`
+| Area                          | Evidence required                                       | Status | Evidence / notes                                                                                                                          |
+| ----------------------------- | ------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| FastAPI application starts    | Uvicorn terminal shows startup completed                | PASS   | Verified locally on 2026-10-13                                                                                                            |
+| Swagger docs available        | `/docs` opens and lists endpoints                       | PASS   | Verified locally on 2026-10-13                                                                                                            |
+| Image listing endpoint        | `GET /images` returns JSON list                         | PASS   | Verified manually in Swagger                                                                                                              |
+| Status filter                 | `GET /images?status=completed` returns filtered data    | PASS   | Verified manually in Swagger result                                                                                                       |
+| Category filter               | `GET /images?category=<category>` returns filtered data | PASS   | Verified manually in Swagger result                                                                                                       |
+| Single-image endpoint         | `GET /images/{image_id}` returns image and metadata     | PASS   | `GET /images/1` returned HTTP 200 with image metadata, caption, category, and confidence. Evidence: `evidence/image-detail-response.json` |     |
+| Missing image behavior        | Missing image ID returns `404`                          | PASS   | `GET /images/999999` returned HTTP 404 with `{"detail": "Image not found"}`                                                               |     |
+| Audit endpoint exists         | `/images/{image_id}/calls` appears in Swagger           | PASS   | Verified locally on 2026-10-13                                                                                                            |
+| Audit endpoint works          | Existing image returns call list                        | PASS   | `GET /images/16/calls` and `GET /images/29/calls` returned HTTP 200 with saved AI-call records                                            |     |
+| Audit endpoint missing ID     | Missing image call request returns `404`                | PASS   | `GET /images/999999/calls` returned HTTP 404 with `{"detail": "Image not found"}`                                                         |     |
+| AI success logging            | Successful Gemini call stored with status/tokens/cost   | PASS   | evidence/ai-call-success.json                                                                                                             |
+| AI failure logging            | Failed Gemini call stores error details                 | PASS   | evidence/ai-call-failure.json                                                                                                             |
+| Frontend route                | `/` loads dashboard                                     | PASS   | https://imagematch-api.onrender.com/                                                                                                      |
+| Frontend cards                | Dashboard lists images                                  | PASS   | evidence/dashboard-home.png                                                                                                               |
+| Dashboard status filter       | UI filter changes displayed images                      | PASS   | evidence/dashboard-filtered.png                                                                                                           |     |
+| Automated tests               | `pytest -v` passes                                      | PASS   | 8 tests passed locally on 2026-10-14 using python -m pytest tests -v                                                                      |
+| Secrets excluded              | `.env` is in `.gitignore` and not committed             | PASS   | Verified with `git status` and GitHub                                                                                                     |
+| README complete               | Setup, architecture, API, and limitations documented    | PASS   | README drafted on 2026-10-13                                                                                                              |
+| Evaluation dataset documented | Dataset plan and labels template exist                  | PASS   | `evaluation_dataset/README.md` drafted                                                                                                    |
+|                               |
 
 ### Existing image
 
-**Date:** `TBD`  
+**Date:** `2026-10-22`
+
 **Request:**
 
-```text
-GET http://127.0.0.1:8000/images/<existing_image_id>
-```
+GET http://127.0.0.1:8000/images/1
 
 **Expected:**
 
 - HTTP `200`
-- Image data plus Gemini metadata when available
+- A single image object with metadata when available
 
-**Observed:** `TBD`  
-**Status:** `NOT YET TESTED`  
-**Evidence link/screenshot:** `TBD`
+**Observed:** HTTP `200`. Returned image ID `1` (`bear1.jpg`),
+status `completed`, attempts `7`, and error_message `null`.
+The metadata included subject `brown bear`, category `animal`,
+attributes, caption, confidence `0.98`, and model name.
 
-### Missing image
-
-**Date:** `TBD`  
-**Request:**
-
-```text
-GET http://127.0.0.1:8000/images/999999
-```
-
-**Expected:**
-
-```json
-{
-  "detail": "Image not found"
-}
-```
-
-**Observed:** `TBD`  
-**Status:** `NOT YET TESTED`
+**Status:** `PASS`
+**Evidence link/screenshot:** `evidence/image-detail-response.json`
 
 ### AI call audit history
 
-**Date:** `TBD`  
+**Date:** `2026-10-22`  
 **Request:**
 
 ```text
@@ -132,17 +94,21 @@ GET http://127.0.0.1:8000/images/<existing_image_id>/calls
 - JSON array of zero or more call-log records
 - Records may include provider, model name, status, token counts, estimated cost, error message, and timestamp
 
-**Observed:** `TBD`  
-**Status:** `NOT YET TESTED`  
-**Evidence link/screenshot:** `TBD`
+**Observed:** HTTP `200`. Returned an empty JSON array (`[]`)
+for existing image ID `1` (`bear1.jpg`). This confirms the endpoint
+returns a call list for an existing image, but does not verify
+retrieval of populated call-log records.
+
+**Status:** `PASS`
+**Evidence link/screenshot:** `evidence/image-id-test.png`
 
 ### Missing image audit history
 
-**Date:** `TBD`  
+**Date:** `2026-10-22`  
 **Request:**
 
 ```text
-GET http://127.0.0.1:8000/images/999999/calls
+GET `http://127.0.0.1:8000/images/999999/calls`
 ```
 
 **Expected:**
@@ -153,82 +119,81 @@ GET http://127.0.0.1:8000/images/999999/calls
 }
 ```
 
-**Observed:** `TBD`  
-**Status:** `NOT YET TESTED`
+**Observed:** HTTP `404`. Returned `{"detail": "Image not found"}`.
+**Status:** `PASS`
 
 ## AI Processing Evidence
 
 ### Successful processing example
 
-| Field                   | Value |
-| ----------------------- | ----- |
-| Date                    | `TBD` |
-| Image filename          | `TBD` |
-| Image ID                | `TBD` |
-| Gemini model            | `TBD` |
-| Resulting category      | `TBD` |
-| Resulting description   | `TBD` |
-| Image processing status | `TBD` |
-| AI call status          | `TBD` |
-| Input tokens            | `TBD` |
-| Output tokens           | `TBD` |
-| Estimated cost          | `TBD` |
-| Screenshot/JSON path    | `TBD` |
+Successful AI-call evidence is saved in
+[evidence/ai-call-success.json](evidence/ai-call-success.json).
+
+See the JSON file for the recorded call details.
 
 ### Failed processing example
 
-| Field                      | Value                                             |
-| -------------------------- | ------------------------------------------------- |
-| Date                       | `TBD`                                             |
-| Image filename             | `TBD`                                             |
-| Image ID                   | `TBD`                                             |
-| Gemini model               | `TBD`                                             |
-| Image processing status    | `TBD`                                             |
-| AI call status             | `TBD`                                             |
-| Error message              | `TBD`                                             |
-| Expected behavior verified | `TBD: error is logged and visible through /calls` |
-| Screenshot/JSON path       | `TBD`                                             |
+Failed AI-call evidence is saved in
+[evidence/ai-call-failure.json](evidence/ai-call-failure.json).
+
+See the JSON file for the recorded failure details.
 
 ## Frontend Evidence
 
 ### Dashboard load
 
-**Date:** `TBD`  
-**URL:**
+**Date:** `2026-10-13`
 
-```text
-http://127.0.0.1:8000/
-```
+**URL:** `http://127.0.0.1:8000/`
 
-**Expected:**
+**Observed:** Dashboard loaded successfully and displayed image cards.
 
-- Dashboard title is visible
-- Image cards load from the API
-- Status and category filters are present
-- Each card displays metadata and Gemini audit history
-
-**Observed:** `TBD`  
-**Status:** `NOT YET TESTED`  
-**Screenshot path:** `TBD`
+**Status:** `PASS`
+**Screenshot path:** `evidence/dashboard-home.png`
 
 ### Filter test
 
-| Test            | Input                | Expected result                 | Observed result | Status           |
-| --------------- | -------------------- | ------------------------------- | --------------- | ---------------- |
-| Status filter   | `completed`          | Only completed images shown     | `TBD`           | `NOT YET TESTED` |
-| Category filter | `TBD`                | Only matching category shown    | `TBD`           | `NOT YET TESTED` |
-| Empty result    | Nonexistent category | “No images match those filters” | `TBD`           | `NOT YET TESTED` |
+**Screenshot:** `evidence/dashboard-filtered.png`
 
 ## Evaluation Dataset Results
 
-| Metric                      | Formula / definition                             | Current result | Status           |
-| --------------------------- | ------------------------------------------------ | -------------: | ---------------- |
-| Dataset size                | Number of images evaluated                       |          `TBD` | `NOT YET TESTED` |
-| Category accuracy           | Correct categories / labeled completed images    |          `TBD` | `NOT YET TESTED` |
-| Description acceptance rate | Acceptable descriptions / completed descriptions |          `TBD` | `NOT YET TESTED` |
-| Pipeline completion rate    | Completed images / submitted images              |          `TBD` | `NOT YET TESTED` |
-| Logged failure rate         | Images with failed AI call / submitted images    |          `TBD` | `NOT YET TESTED` |
-| Audit-log coverage          | Processing attempts with logs / total attempts   |          `TBD` | `NOT YET TESTED` |
+**Date:** `2026-10-22`
+**Scope:** Limited animal-image pilot covering image IDs 16–34.
+
+**Command used:**
+
+python -m scripts.process_pending_images --batch-size 19
+
+| Metric                           | Result         | Verification status                                  |
+| -------------------------------- | -------------- | ---------------------------------------------------- |
+| Images submitted                 | 19             | Confirmed from terminal output                       |
+| Images completed                 | 16             | Confirmed from terminal output                       |
+| Images failed                    | 3              | Confirmed from terminal output                       |
+| Pipeline completion rate         | 84.21% (16/19) | Measured                                             |
+| Terminal processing failure rate | 15.79% (3/19)  | Measured                                             |
+| Category accuracy                | Not measured   | Requires review of stored predictions against images |
+| Description acceptance rate      | Not measured   | Requires manual review of stored captions            |
+| Logged failure rate              | 15.79% (3/19)  | verified                                             |
+
+### Database audit verification
+
+**Date:** `2026-10-22`
+**Scope:** Image IDs 16–34
+
+**Observed:**
+
+- 19/19 evaluated images returned one saved AI-call record.
+- 16 completed images returned a success record.
+- 3 failed images (IDs 29, 31, 34) returned a failed record.
+- Logged failure rate: 15.79% (3/19 images).
+- Image-level final-outcome log coverage: 100% (19/19 images).
+
+**Status:** `PASS`
+**Evidence:** `evaluation_dataset/results/evaluation_results.csv`
+and `evaluation_dataset/results/calls-<image_id>.json`
+
+**Limitation:** This verifies saved final outcomes for all evaluated
+images, not coverage of individual provider retries.
 
 ## Commands Used
 
@@ -265,20 +230,37 @@ evidence/
 
 | Artifact                 | Purpose                             | Added? |
 | ------------------------ | ----------------------------------- | ------ |
-| `swagger-endpoints.png`  | Shows API endpoints in Swagger      | `NO`   |
-| `dashboard-home.png`     | Shows dashboard loading image cards | `NO`   |
-| `dashboard-filtered.png` | Shows a working filter              | `NO`   |
-| `ai-call-success.json`   | Shows successful AI audit record    | `NO`   |
-| `ai-call-failure.json`   | Shows failed AI audit record        | `NO`   |
-| `pytest-output.txt`      | Shows passing test suite            | `NO`   |
+| `swagger-endpoints.png`  | Shows API endpoints in Swagger      | `YES`  |
+| `dashboard-home.png`     | Shows dashboard loading image cards | `YES`  |
+| `dashboard-filtered.png` | Shows a working filter              | `YES`  |
+| `ai-call-success.json`   | Shows successful AI audit record    | `YES`  |
+| `ai-call-failure.json`   | Shows failed AI audit record        | `YES`  |
+| `pytest-output.txt`      | Shows passing test suite            | `YES`  |
+
+## Deployment Evidence
+
+**Date:** `2026-10-22`
+**Public URL:** https://imagematch-api.onrender.com/
+**Hosting:** Render Free
+**Database:** Neon PostgreSQL
+
+**Observed:** The deployed dashboard and Swagger documentation loaded successfully.
+The `/images`, `/images/16/calls`, and `/images/29/calls` endpoints returned HTTP 200
+with the expected records. Missing-image requests to `/images/999999` and
+`/images/999999/calls` returned HTTP 404 with `{"detail": "Image not found"}`.
+
+**Status:** `PASS`
+**Screenshot:** `evidence/deployment-dashboard.png`
 
 ## Remaining Work
 
-- [ ] Verify dashboard at `/`
-- [ ] Test status and category filtering through both API and UI
-- [ ] Add and run automated tests
-- [ ] Build and evaluate a representative image dataset
-- [ ] Add screenshots or JSON evidence
-- [ ] Confirm `.env` is excluded from Git
-- [ ] Deploy application
-- [ ] Add public deployment URL here
+- [x] Verify dashboard at `/`
+- [x] Test status and category filtering through both API and UI
+- [x] Add and run automated tests — 8 tests passed
+- [x] Add screenshots or JSON evidence
+- [x] Confirm `.env` is excluded from Git
+- [x] Run an initial animal-image processing pilot — 16/19 completed
+- [ ] Review stored predictions and captions to measure category accuracy and description acceptance
+- [x] Verify database audit records for the evaluated images
+- [deferred to avoid additional API usage] Expand evaluation to mixed categories — deferred to avoid additional API usage
+- [x] Deploy application

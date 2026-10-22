@@ -1,0 +1,232 @@
+[
+  {
+    "id": 1,
+    "filename": "bear1.jpg",
+    "file_path": "data/images/bear1.jpg",
+    "status": "completed",
+    "attempts": 7,
+    "error_message": null,
+    "created_at": "2026-09-28T11:11:57.849934Z",
+    "metadata_record": {
+      "subject": "brown bear",
+      "category": "animal",
+      "attributes": [
+        "brown bear",
+        "mammal",
+        "wildlife",
+        "standing",
+        "grass",
+        "furry",
+        "outdoors"
+      ],
+      "caption": "a brown bear stands in a field of tall green grass looking upward.",
+      "confidence": 0.98,
+      "model_name": "gemini-3.8-flash",
+      "created_at": "2026-10-11T16:25:42.488871Z"
+    }
+  },
+  {
+    "id": 2,
+    "filename": "bear10.jpg",
+    "file_path": "data/images/bear10.jpg",
+    "status": "completed",
+    "attempts": 3,
+    "error_message": null,
+    "created_at": "2026-09-28T11:11:57.849934Z",
+    "metadata_record": {
+      "subject": "brown bear",
+      "category": "animal",
+      "attributes": [
+        "brown bear",
+        "mammal",
+        "wildlife",
+        "thick fur",
+        "standing",
+        "green grass",
+        "outdoor"
+      ],
+      "caption": "a large brown bear stands in a field of green grass.",
+      "confidence": 0.99,
+      "model_name": "gemini-3.8-flash",
+      "created_at": "2026-10-12T16:53:00.196838Z"
+    }
+  },
+  {
+    "id": 3,
+    "filename": "bear11.jpg",
+    "file_path": "data/images/bear11.jpg",
+    "status": "completed",
+    "attempts": 2,
+    "error_message": null,
+    "created_at": "2026-09-28T11:11:57.849934Z",
+    "metadata_record": {
+      "subject": "black bear",
+      "category": "animal",
+      "attributes": [
+        "black fur",
+        "brown muzzle",
+        "rounded ears",
+        "close-up portrait",
+        "green background",
+        "wildlife"
+      ],
+      "caption": "a close-up portrait of a black bear looking directly at the camera against a blurred green background.",
+      "confidence": 0.98,
+      "model_name": "gemini-3.8-flash",
+      "created_at": "2026-10-12T16:50:31.660619Z"
+    }
+  },
+  {
+    "id": 4,
+    "filename": "bear12.jpg",
+    "file_path": "data/images/bear12.jpg",
+    "status": "completed",
+    "attempts": 1,
+    "error_message": null,
+    "created_at": "2026-09-28T11:11:57.849934Z",
+    "metadata_record": {
+      "subject": "black bear",
+      "category": "animal",
+      "attributes": [
+        "black bear",
+        "wildlife",
+        "mammal",
+        "mossy rocks",
+        "shoreline",
+        "standing"
+      ],
+      "caption": "a black bear stands on a rocky, moss-covered shoreline looking toward the camera.",
+      "confidence": 0.98,
+      "model_name": "gemini-3.8-flash",
+      "created_at": "2026-09-28T17:25:25.033173Z"
+    }
+  },
+  {
+    "id": 5,
+    "filename": "bear13.jpg",
+    "file_path": "data/images/bear13.jpg",
+    "status": "completed",
+    "attempts": 1,
+    "error_message": null,
+    "created_at": "2026-09-28T11:11:57.849934Z",
+    "metadata_record": {
+      "subject": "american black bear",
+      "category": "animal",
+      "attributes": [
+        "black fur",
+        "mammal",
+        "wildlife",
+        "standing",
+        "grass",
+        "log",
+        "green background"
+      ],
+      "caption": "an american black bear standing on green grass next to a fallen tree log with a blurred forest background.",
+      "confidence": 0.98,
+      "model_name": "gemini-3.8-flash",
+      "created_at": "2026-10-12T16:50:37.276923Z"
+    }
+  },
+  {
+    "id": 6,
+    "filename": "bear14.jpg",
+    "file_path": "data/images/bear14.jpg",
+    "status": "completed",
+    "attempts": 1,
+    "error_message": null,
+    "created_at": "2026-09-28T11:11:57.849934Z",
+    "metadata_record": {
+      "subject": "american black bear",
+      "category": "animal",
+      "attributes": [
+        "black fur",
+        "standing",
+        "rocky riverbank",
+        "water",
+        "wildlife",
+        "brown muzzle"
+      ],
+      "caption": "an american black bear stands on a rocky stream bank near flowing water.",
+      "confidence": 0.98,
+      "model_name": "gemini-3.8-flash",
+      "created_at": "2026-10-12T16:50:46.976429Z"
+    }
+  },
+  {
+    "id": 7,
+    "filename": "bear15.jpg",
+    "file_path": "data/images/bear15.jpg",
+    "status": "completed",
+    "attempts": 1,
+    "error_message": null,
+    "created_at": "2026-09-28T11:11:57.849934Z",
+    "metadata_record": {
+      "subject": "black bear with cubs",
+      "category": "animal",
+      "attributes": [
+        "black bear",
+        "cubs",
+        "wildlife",
+        "forest",
+        "family",
+        "nature",
+        "mammals"
+      ],
+      "caption": "a mother black bear surrounded by her three small cubs standing in the grass near a forest.",
+      "confidence": 0.98,
+      "model_name": "gemini-3.8-flash",
+      "created_at": "2026-10-12T16:57:24.060665Z"
+    }
+  },
+  {
+    "id": 9,
+    "filename": "bear17.jpg",
+    "file_path": "data/images/bear17.jpg",
+    "status": "completed",
+    "attempts": 1,
+    "error_message": null,
+    "created_at": "2026-09-28T11:11:57.849934Z",
+    "metadata_record": {
+      "subject": "black bear",
+      "category": "animal",
+      "attributes": [
+        "black bear",
+        "sitting",
+        "mammal",
+        "wildlife",
+        "heavy",
+        "outdoor"
+      ],
+      "caption": "a large black bear sitting on a wooden platform in an outdoor setting.",
+      "confidence": 0.98,
+      "model_name": "gemini-3.8-flash",
+      "created_at": "2026-10-12T17:45:05.976647Z"
+    }
+  },
+  {
+    "id": 10,
+    "filename": "bear18.jpg",
+    "file_path": "data/images/bear18.jpg",
+    "status": "completed",
+    "attempts": 1,
+    "error_message": null,
+    "created_at": "2026-09-28T11:11:57.849934Z",
+    "metadata_record": {
+      "subject": "black bear",
+      "category": "animal",
+      "attributes": [
+        "black bear",
+        "standing",
+        "tree trunk",
+        "forest",
+        "wildlife",
+        "mammal",
+        "lichen"
+      ],
+      "caption": "an american black bear stands on its hind legs against a lichen-covered tree trunk in a forest.",
+      "confidence": 0.98,
+      "model_name": "gemini-3.8-flash",
+      "created_at": "2026-10-12T17:45:16.341908Z"
+    }
+  }
+]
