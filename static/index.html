@@ -299,7 +299,7 @@
 
         grid.innerHTML = images.map((image, index) => {
           const metadata = image.metadata_record;
-          const status = image.processing_status || "unknown";
+          const status = image.status || "unknown";
 
           return `
             <article class="card">
@@ -320,7 +320,7 @@
                   </div>
                   <div>
                     <dt>Description</dt>
-                    <dd>${escapeHtml(metadata?.description || "—")}</dd>
+                    <dd>${escapeHtml(metadata?.caption || "-")}</dd>
                   </div>
                   <div>
                     <dt>Created</dt>

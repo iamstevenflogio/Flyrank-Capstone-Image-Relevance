@@ -193,18 +193,15 @@ def main():
 
                 if metadata.confidence < LOW_CONFIDENCE_THRESHOLD:
                     image.status = "needs_review"
-                    print(
-                    f"Needs review {image.id}: {image.filename} "
-                    f"(confidence={metadata.confidence})"
-                    )
                 else:
                     image.status = "completed"
-                    session.commit()
 
-                    print(
-                        f"Completed {image.id}: {image.filename} "
-                        f"(confidence={metadata.confidence})"
-                    )
+                session.commit()
+
+                print(
+                    f"Processed {image.id}: {image.filename} | "
+                    f"status={image.status} | confidence={metadata.confidence}"
+                )
     
 
             except Exception as error:
